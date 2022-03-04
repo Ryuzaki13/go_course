@@ -22,6 +22,7 @@ func main() {
 	router.Static("assets", "assets")
 	router.GET("/", index)
 	router.POST("/user", index2)
+	router.POST("/upload", upload)
 	_ = router.Run(opt.Address + ":" + opt.Port)
 }
 
@@ -59,4 +60,25 @@ func index2(c *gin.Context) {
 		"IsAdmin": true,
 		"Date":    "2022-02-18",
 	})
+}
+
+func upload(c *gin.Context) {
+
+	form, e := c.MultipartForm()
+	if e != nil {
+		db.Logger.Println(e)
+		c.JSON(400, nil)
+		return
+	}
+
+	files := form.File["MyFiles"]
+
+	for _, file := range files {
+		e = c.SaveUploadedFile(file, "files/"+file.Filename)
+		if e != nil {
+			db.Logger.Println(e)
+		}
+	}
+
+	c.JSON(200, nil)
 }

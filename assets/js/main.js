@@ -1,14 +1,22 @@
-var Network;
-(function (Network) {
-    function Get(url, data, callback) {
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", url);
-        xhr.onload = function (event) {
-            callback(JSON.parse(this.response));
-        };
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify(data));
+let input = document.querySelector('input[type="file"]');
+
+if (input) {
+    input.onchange = function (e) {
+        Upload(this.files, (res) => {
+            console.log(res);
+        });
     }
-    Get("/user", { Date: "sdasfd" }, function (r) {
-    });
-})(Network || (Network = {}));
+}
+
+function Upload(files, callback) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/upload");
+    let data = new FormData();
+    for (let file of files) {
+        data.append("MyFiles", file, file.name);
+    }
+    xhr.onload = function (event) {
+        callback(JSON.parse(this.response));
+    }
+    xhr.send(data);
+}

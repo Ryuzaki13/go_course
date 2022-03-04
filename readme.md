@@ -6,5 +6,9 @@
 
     npm install typescript
 
+Для изменения размеров изображений
+    
+    import "github.com/nfnt/resize"
+
 
     
