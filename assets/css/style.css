@@ -1,3 +1,25 @@
 body {
+    font-family: sans-serif;
     background-color: #e4e4e4;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.file {
+    width: 200px;
+    height: 40px;
+    border: 2px dashed #c4c4c4;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #c4c4c4;
+    transition: color 200ms, border-color 200ms;
+}
+.file:hover {
+    cursor: pointer;
+    color: #7c7c7c;
+    border-color: #7c7c7c;
 }
