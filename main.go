@@ -22,7 +22,10 @@ func main() {
 	router.Static("assets", "assets")
 	router.GET("/", index)
 	router.POST("/user", index2)
-	router.POST("/upload", upload)
+
+	router.POST("/api/product", getProducts)
+	router.DELETE("/api/product", delProduct)
+
 	_ = router.Run(opt.Address + ":" + opt.Port)
 }
 
@@ -78,6 +81,44 @@ func upload(c *gin.Context) {
 		if e != nil {
 			db.Logger.Println(e)
 		}
+	}
+
+	c.JSON(200, nil)
+}
+
+func getProducts(c *gin.Context) {
+	type input struct {
+		Search string `json:"Search"`
+	}
+
+	i := input{}
+	e := c.BindJSON(&i)
+	if e != nil {
+		db.Logger.Println(e)
+		c.JSON(400, nil)
+		return
+	}
+
+	c.JSON(200, db.SearchProduct(i.Search))
+}
+
+func delProduct(c *gin.Context) {
+	type input struct {
+		ID int `json:"id"`
+	}
+
+	i := input{}
+	e := c.BindJSON(&i)
+	if e != nil {
+		db.Logger.Println(e)
+		c.JSON(400, nil)
+		return
+	}
+
+	e = db.DeleteProduct(i.ID)
+	if e != nil {
+		c.JSON(400, nil)
+		return
 	}
 
 	c.JSON(200, nil)

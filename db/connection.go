@@ -33,5 +33,10 @@ func Connect(opt *setting.Setting) error {
 		return e
 	}
 
+	e = prepareProduct()
+	if e != nil {
+		return e
+	}
+
 	return nil
 }

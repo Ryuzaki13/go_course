@@ -23,3 +23,17 @@ input[type="file"] {
     color: #7c7c7c;
     border-color: #7c7c7c;
 }
+
+.product {
+    position: relative;
+    margin: 10px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 8px;
+}
+
+.fa-trash-can {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
