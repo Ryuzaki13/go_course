@@ -8,7 +8,7 @@
     <title>{{.Title}}</title>
 </head>
 <body>
-    {{template "header" .Title}}
+    {{template "header" .}}
     {{template "content"}}
     {{if eq .IsAdmin true}}
         {{template "admin"}}

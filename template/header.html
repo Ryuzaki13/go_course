@@ -1,5 +1,16 @@
 {{define "header"}}
 <header>
 
+    <ul>
+    {{range $item := .Menu}}
+
+        <li>
+            <a href="{{$item.Link}}">{{$item.Name}}</a>
+            <ul></ul>
+        </li>
+
+    {{end}}
+    </ul>
+
 </header>
 {{end}}

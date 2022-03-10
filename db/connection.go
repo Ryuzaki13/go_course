@@ -37,6 +37,7 @@ func Connect(opt *setting.Setting) error {
 	if e != nil {
 		return e
 	}
+	prepareMenu()
 
 	return nil
 }

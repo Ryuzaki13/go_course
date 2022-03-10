@@ -29,15 +29,50 @@ func main() {
 	_ = router.Run(opt.Address + ":" + opt.Port)
 }
 
+type M struct {
+	ID       int32
+	Name     string
+	Link     string
+	Children []M
+}
+
 func index(c *gin.Context) {
 	user := db.User{}
 
 	users := user.SelectAll()
 
+	menu := make([]M, 0)
+	list := db.SelectMenu()
+
+	for _, item := range list {
+		if item.Parent == 0 {
+			for i := range item.Name {
+				menu = append(menu, M{
+					//ID: item.ID[i],
+					Name: item.Name[i],
+					Link: item.Link[i],
+				})
+			}
+		} else {
+			for _, a := range menu {
+				if a.ID == item.Parent {
+					for i := range item.Name {
+						a.Children = append(a.Children, M{
+							//ID: item.ID[i],
+							Name: item.Name[i],
+							Link: item.Link[i],
+						})
+					}
+				}
+			}
+		}
+	}
+
 	c.HTML(200, "index", gin.H{
 		"Users":   users,
 		"Title":   "Сайтик",
 		"IsAdmin": true,
+		"Menu":    menu,
 	})
 }
 
