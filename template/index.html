@@ -3,18 +3,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
     <title>{{.Title}}</title>
 </head>
 <body>
     {{template "header" .}}
     {{template "content"}}
-    {{if eq .IsAdmin true}}
-        {{template "admin"}}
-    {{end}}
+
     {{template "footer" .Users}}
 
+    <script>
+        {{if eq .IsAdmin true}}
+             window["IsAdmin"] = true;
+        {{end}}
+    </script>
     <script src="/assets/js/main.js"></script>
 </body>
 </html>

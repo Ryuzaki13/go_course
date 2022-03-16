@@ -3,37 +3,70 @@ body {
     background-color: #e4e4e4;
 }
 
-input[type="file"] {
-    display: none;
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-auto-rows: 360px;
 }
 
-.file {
-    width: 200px;
-    height: 40px;
-    border: 2px dashed #c4c4c4;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #c4c4c4;
-    transition: color 200ms, border-color 200ms;
-}
-.file:hover {
-    cursor: pointer;
-    color: #7c7c7c;
-    border-color: #7c7c7c;
-}
+
 
 .product {
     position: relative;
     margin: 10px;
-    padding: 10px;
     background-color: white;
     border-radius: 8px;
 }
+.product > div:first-child {
+    width: 100%;
+    height: 200px;
+}
+.product img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
 
-.fa-trash-can {
+.product .caption {
+    margin: 20px;
+    font-size: 1.3em;
+}
+
+.product .price {
+    font-size: 1.5em;
+    margin: 20px;
+    font-weight: bold;
+}
+
+.product-menu {
     position: absolute;
     top: 10px;
     right: 10px;
+    opacity: 0.2;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 200ms linear;
+}
+
+.product-menu:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.product .popup {
+    position: absolute;
+    bottom: calc(100% + 2px);
+    right: 0;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0 0 12px #ccc;
+}
+.product .popup > * {
+    padding: 5px;
 }

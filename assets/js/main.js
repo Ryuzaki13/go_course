@@ -1,4 +1,5 @@
 let input = document.querySelector('input[type="file"]');
+let isPopupOpen = false;
 
 if (input) {
     input.onchange = function (e) {
@@ -54,27 +55,105 @@ function createProduct(product) {
     let div = document.createElement("div");
     let div2 = document.createElement("div");
     let div3 = document.createElement("div");
-    let del = document.createElement("div");
-    del.className = "fa-solid fa-trash-can";
+    let divImage = document.createElement("div");
+    let image = document.createElement("img");
 
-    del.onclick = removeProduct.bind(del, product.id);
+
 
     div2.textContent = product.name;
+    div2.className = "caption";
     div3.textContent = product.price;
+    div3.className = "price";
     div.dataset.id = product.id;
     div.className = "product";
-    div.append(div2, div3, del);
+    divImage.append(image);
+    div.append(divImage, div2, div3);
+
+    if (window["IsAdmin"]) {
+        div.append(Div({
+            className: "fa-solid fa-ellipsis-vertical product-menu",
+            events: {onclick: openMenu}
+        }));
+    }
 
     return div;
 }
 
-function removeProduct(id) {
-    Send("DELETE", "/api/product", {id}, ()=> {
-        let product = this.closest(".product");
+function Div(props) {
+    let div = document.createElement("div");
+
+    if (!props || typeof props !== "object") {
+        return div;
+    }
+
+    if ("events" in props) {
+        for (let key in props.events) {
+            div[key] = props.events[key];
+        }
+    }
+
+    if ("className" in props) {
+        div.className = props.className;
+    }
+
+    if ("style" in props) {
+        div.style.cssText = props.style;
+    }
+
+    if ("id" in props) {
+        div.id = props.id;
+    }
+
+    if ("dataset" in props) {
+        for (let key in props.dataset) {
+            div.dataset[key] = props.dataset[key];
+        }
+    }
+
+    if ("children" in props) {
+        div.append(...props.children);
+    }
+
+    return div;
+}
+
+function openMenu() {
+    let product = this.closest(".product");
+
+    removePopups();
+
+    if (product) {
+        let popup = product.querySelector(".popup");
+        if (!popup) {
+            product.append(Div({
+                className: "popup",
+                children: [
+                    Div({
+                        className: "fa-solid fa-pen"
+                    }),
+                    Div({
+                        className: "fa-solid fa-trash-can",
+                        dataset: {id: product.dataset.id},
+                        events: {
+                            onclick: removeProduct
+                        }
+                    })
+                ]
+            }));
+            isPopupOpen = true;
+        } else {
+            popup.remove();
+        }
+    }
+}
+
+function removeProduct() {
+    let product = this.closest(".product");
+    Send("DELETE", "/api/product", {id: +this.dataset.id}, () => {
         if (product) {
             product.remove();
         }
-    })
+    });
 }
 
 /**
@@ -88,7 +167,7 @@ if (search) {
             clearTimeout(timeout);
             timeout = 0;
         }
-        timeout = setTimeout(()=> {
+        timeout = setTimeout(() => {
             Send("POST", "/api/product", {Search: this.value}, response => {
                 let productList = document.querySelector("#ProductList");
                 if (!productList || !response) {
@@ -102,5 +181,24 @@ if (search) {
                 }
             });
         }, 400);
+    }
+}
+
+
+document.body.addEventListener("click", event => {
+    if (event.target.classList.contains("product-menu")) {
+        return;
+    }
+
+    removePopups();
+});
+
+function removePopups() {
+    if (isPopupOpen === true) {
+        let popup = document.querySelectorAll(".product .popup");
+        for (let i = 0; i < popup.length; i++) {
+            popup[i].remove();
+        }
+        isPopupOpen = false;
     }
 }

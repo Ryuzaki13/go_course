@@ -71,7 +71,7 @@ func index(c *gin.Context) {
 	c.HTML(200, "index", gin.H{
 		"Users":   users,
 		"Title":   "Сайтик",
-		"IsAdmin": true,
+		"IsAdmin": false,
 		"Menu":    menu,
 	})
 }
