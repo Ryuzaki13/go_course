@@ -110,14 +110,14 @@ func login(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	cookieSession := sessions.Default(c)
+	session := sessions.Default(c)
 
-	_, ok := cookieSession.Get("SessionSecretKey").(string)
+	_, ok := session.Get("SessionSecretKey").(string)
 	if ok {
-		cookieSession.Clear()
-		_ = cookieSession.Save()
+		session.Clear()
+		_ = session.Save()
 		c.SetCookie("hello", "", -1, "/", c.Request.URL.Hostname(), false, true)
-		cookieSession.Delete("SessionSecretKey")
+		session.Delete("SessionSecretKey")
 	}
 
 	c.Redirect(301, c.Request.URL.Hostname())

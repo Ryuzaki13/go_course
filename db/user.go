@@ -26,15 +26,6 @@ var query map[string]*sql.Stmt
 func prepare() error {
 	query = make(map[string]*sql.Stmt)
 
-	//	Link.Exec(`CREATE TABLE "Session" (
-	//    "Hash" varchar(64) primary key,
-	//    "User" varchar not null,
-	//    "Date" timestamp not null,
-	//    "Device" varchar not null);
-	//ALTER TABLE "Session" ADD CONSTRAINT "Session_fk0" FOREIGN KEY ("User") REFERENCES "User"("Login");
-	//ALTER TABLE "User" ADD COLUMN "Role" varchar NOT NULL DEFAULT("");
-	//`)
-
 	var e error
 	query["SessionInsert"], e = Link.Prepare(`INSERT INTO "Session"
 		("Hash", "User", "Date", "Device")
@@ -104,7 +95,6 @@ func (u *User) LogIn() bool {
 		Logger.Println(e)
 		return false
 	}
-
 	return true
 }
 

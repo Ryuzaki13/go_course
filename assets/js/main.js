@@ -32,7 +32,6 @@ function Send(method, uri, data, callback) {
         }
     }
     if (data) {
-        console.log(data);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.send(JSON.stringify(data));
@@ -51,6 +50,10 @@ Send("POST", "/api/product", {Search: ""}, response => {
     for (let product of response) {
         productList.append(createProduct(product));
     }
+
+    if (AddControl && typeof AddControl === "function") {
+        AddControl();
+    }
 });
 
 function createProduct(product) {
@@ -60,8 +63,6 @@ function createProduct(product) {
     let divImage = document.createElement("div");
     let image = document.createElement("img");
 
-
-
     div2.textContent = product.name;
     div2.className = "caption";
     div3.textContent = product.price;
@@ -70,13 +71,6 @@ function createProduct(product) {
     div.className = "product";
     divImage.append(image);
     div.append(divImage, div2, div3);
-
-    if (window["IsAdmin"]) {
-        div.append(Div({
-            className: "fa-solid fa-ellipsis-vertical product-menu",
-            events: {onclick: openMenu}
-        }));
-    }
 
     return div;
 }
@@ -119,44 +113,6 @@ function Div(props) {
     return div;
 }
 
-function openMenu() {
-    let product = this.closest(".product");
-
-    removePopups();
-
-    if (product) {
-        let popup = product.querySelector(".popup");
-        if (!popup) {
-            product.append(Div({
-                className: "popup",
-                children: [
-                    Div({
-                        className: "fa-solid fa-pen"
-                    }),
-                    Div({
-                        className: "fa-solid fa-trash-can",
-                        dataset: {id: product.dataset.id},
-                        events: {
-                            onclick: removeProduct
-                        }
-                    })
-                ]
-            }));
-            isPopupOpen = true;
-        } else {
-            popup.remove();
-        }
-    }
-}
-
-function removeProduct() {
-    let product = this.closest(".product");
-    Send("DELETE", "/api/product", {id: +this.dataset.id}, () => {
-        if (product) {
-            product.remove();
-        }
-    });
-}
 
 /**
  * @type {HTMLInputElement}
@@ -187,35 +143,21 @@ if (search) {
 }
 
 
-document.body.addEventListener("click", event => {
-    if (event.target.classList.contains("product-menu")) {
-        return;
-    }
+//===============
+//===============
+//===============
 
-    removePopups();
-});
-
-function removePopups() {
-    if (isPopupOpen === true) {
-        let popup = document.querySelectorAll(".product .popup");
-        for (let i = 0; i < popup.length; i++) {
-            popup[i].remove();
-        }
-        isPopupOpen = false;
-    }
+function reg(login, pass, name, role) {
+    Send("POST", "/reg", {
+        Login: login,
+        Password: pass,
+        Name: name,
+        Role: role
+    });
 }
 
-
-//===============
-//===============
-//===============
-
-function reg() {
-    Send("POST", "/reg", {Login: "admin", Password: "admin", Name: "admin", Role: "admin"});
-}
-
-function login() {
-    Send("POST", "/login", {Login: "admin", Password: "admin"});
+function login(login, pass) {
+    Send("POST", "/login", {Login: login, Password: pass});
 }
 
 function logout() {
