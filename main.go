@@ -3,9 +3,17 @@ package main
 import (
 	"awesomeProject2/db"
 	"awesomeProject2/setting"
+	"awesomeProject2/utils"
+	"errors"
 	"fmt"
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"html/template"
 )
+
+var sessionMap map[string]db.Session
+
+var adminJS template.JS
 
 func main() {
 	db.InitLogger()
@@ -17,7 +25,18 @@ func main() {
 		return
 	}
 
+	adminJS = template.JS(utils.LoadAssets("secret/admin.js"))
+
+	sessionMap = make(map[string]db.Session)
+
+	db.LoadSession(sessionMap)
+
+	word := sessions.NewCookieStore([]byte("SecretX"))
+
 	router := gin.Default()
+
+	router.Use(sessions.Sessions("hello", word))
+
 	router.LoadHTMLGlob("template/*")
 	router.Static("assets", "assets")
 	router.GET("/", index)
@@ -26,7 +45,97 @@ func main() {
 	router.POST("/api/product", getProducts)
 	router.DELETE("/api/product", delProduct)
 
+	router.POST("/reg", reg)
+	router.POST("/login", login)
+	router.POST("/logout", logout)
+
 	_ = router.Run(opt.Address + ":" + opt.Port)
+}
+
+func reg(c *gin.Context) {
+	var user db.User
+	e := c.BindJSON(&user)
+	if e != nil {
+		c.JSON(403, nil)
+		return
+	}
+
+	user.Password, e = utils.Encrypt(user.Password)
+	if e != nil {
+		c.JSON(400, nil)
+		return
+	}
+
+	if user.Insert() {
+		c.JSON(200, nil)
+		return
+	}
+
+	c.JSON(400, nil)
+}
+
+func login(c *gin.Context) {
+
+	session := sessions.Default(c)
+
+	var user db.User
+	e := c.BindJSON(&user)
+	if e != nil {
+		c.JSON(403, nil)
+		return
+	}
+
+	user.Password, e = utils.Encrypt(user.Password)
+	if e != nil {
+		c.JSON(400, nil)
+		return
+	}
+
+	if user.LogIn() {
+		hash, ok := db.CreateSession(&user, sessionMap)
+		if ok {
+			session.Set("SessionSecretKey", hash)
+			e = session.Save()
+			if e != nil {
+				db.Logger.Println(e)
+			}
+
+			c.JSON(200, nil)
+
+			return
+		}
+	}
+
+	c.JSON(400, nil)
+}
+
+func logout(c *gin.Context) {
+	cookieSession := sessions.Default(c)
+
+	_, ok := cookieSession.Get("SessionSecretKey").(string)
+	if ok {
+		cookieSession.Clear()
+		_ = cookieSession.Save()
+		c.SetCookie("hello", "", -1, "/", c.Request.URL.Hostname(), false, true)
+		cookieSession.Delete("SessionSecretKey")
+	}
+
+	c.Redirect(301, c.Request.URL.Hostname())
+}
+
+func getSession(c *gin.Context) (db.Session, error) {
+	_session := sessions.Default(c)
+
+	session := db.Session{}
+
+	sessionHash, ok := _session.Get("SessionSecretKey").(string)
+	if ok == true {
+		session, ok = sessionMap[sessionHash]
+		if ok {
+			return session, nil
+		}
+	}
+	return session, errors.New("не авторизованы")
 }
 
 type M struct {
@@ -37,43 +146,18 @@ type M struct {
 }
 
 func index(c *gin.Context) {
-	user := db.User{}
+	session, _ := getSession(c)
 
-	users := user.SelectAll()
-
-	menu := make([]M, 0)
-	list := db.SelectMenu()
-
-	for _, item := range list {
-		if item.Parent == 0 {
-			for i := range item.Name {
-				menu = append(menu, M{
-					//ID: item.ID[i],
-					Name: item.Name[i],
-					Link: item.Link[i],
-				})
-			}
-		} else {
-			for _, a := range menu {
-				if a.ID == item.Parent {
-					for i := range item.Name {
-						a.Children = append(a.Children, M{
-							//ID: item.ID[i],
-							Name: item.Name[i],
-							Link: item.Link[i],
-						})
-					}
-				}
-			}
-		}
+	h := gin.H{
+		"Title": "Сайтик",
+		"Role":  session.User.Role,
 	}
 
-	c.HTML(200, "index", gin.H{
-		"Users":   users,
-		"Title":   "Сайтик",
-		"IsAdmin": false,
-		"Menu":    menu,
-	})
+	if session.User.Role == "admin" {
+		h["JS"] = adminJS
+	}
+
+	c.HTML(200, "index", h)
 }
 
 func index2(c *gin.Context) {
@@ -138,6 +222,13 @@ func getProducts(c *gin.Context) {
 }
 
 func delProduct(c *gin.Context) {
+
+	session, _ := getSession(c)
+	if session.User.Role != "admin" {
+		c.JSON(400, nil)
+		return
+	}
+
 	type input struct {
 		ID int `json:"id"`
 	}

@@ -27,7 +27,9 @@ function Send(method, uri, data, callback) {
     xhr.open(method, uri);
 
     xhr.onload = function (event) {
-        callback(JSON.parse(this.response));
+        if (callback && typeof callback === "function") {
+            callback(JSON.parse(this.response));
+        }
     }
     if (data) {
         console.log(data);
@@ -201,4 +203,21 @@ function removePopups() {
         }
         isPopupOpen = false;
     }
+}
+
+
+//===============
+//===============
+//===============
+
+function reg() {
+    Send("POST", "/reg", {Login: "admin", Password: "admin", Name: "admin", Role: "admin"});
+}
+
+function login() {
+    Send("POST", "/login", {Login: "admin", Password: "admin"});
+}
+
+function logout() {
+    Send("POST", "/logout");
 }

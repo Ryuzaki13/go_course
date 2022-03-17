@@ -14,11 +14,12 @@
     {{template "footer" .Users}}
 
     <script>
-        {{if eq .IsAdmin true}}
+        {{if eq .Role "admin"}}
              window["IsAdmin"] = true;
         {{end}}
     </script>
     <script src="/assets/js/main.js"></script>
+    <script>{{.JS}}</script>
 </body>
 </html>
 {{end}}

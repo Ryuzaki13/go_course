@@ -1,0 +1,1 @@
+console.log(" %c I'm admin! ", "background-color:red;color:white;font-weight:bold");
