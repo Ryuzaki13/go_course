@@ -1,4 +1,4 @@
-package db
+package utils
 
 import (
 	"fmt"
@@ -10,7 +10,9 @@ import (
 var loggerFile *os.File
 var Logger *log.Logger
 
-func InitLogger() {
+// Инициализировать логгер
+
+func init() {
 	currentDate := time.Now().String()[0:10]
 
 	loggerFile, e := os.OpenFile(currentDate+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)

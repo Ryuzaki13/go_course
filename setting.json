@@ -2,7 +2,7 @@
   "Address": "127.0.0.1",
   "Port": "9999",
   "DbHost": "127.0.0.1",
-  "DbPort": "5433",
+  "DbPort": "5432",
   "DbUser": "postgres",
   "DbPass": "1234",
   "DbName": "go"

@@ -7,7 +7,7 @@ import (
 )
 
 // LoadFile загрузить файл и получить указатель на его слайс байтов
-func LoadFile(filename string) (*[]byte, error) {
+func LoadFile(filename string) ([]byte, error) {
 	var file *os.File
 	var e error
 
@@ -30,7 +30,7 @@ func LoadFile(filename string) (*[]byte, error) {
 		return nil, errors.New("ошибка чтения файла " + filename + ": " + e.Error())
 	}
 
-	return &bs, nil
+	return bs, nil
 }
 
 // LoadAssets загрузка файла текстового формата. Для загрузки CSS и JS
@@ -39,6 +39,6 @@ func LoadAssets(filename string) string {
 	if e != nil {
 		return ""
 	} else {
-		return strings.TrimSpace(string(*bytes))
+		return strings.TrimSpace(string(bytes))
 	}
 }

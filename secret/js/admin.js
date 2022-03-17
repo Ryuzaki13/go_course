@@ -1,5 +1,7 @@
 console.log(" %c I'm admin! ", "background-color:red;color:white;font-weight:bold");
 
+let isPopupOpen = false;
+
 function AddControl() {
     let productList = document.querySelectorAll(".product-list > .product");
     for (let i = 0; i < productList.length; i++) {
@@ -9,8 +11,6 @@ function AddControl() {
         }));
     }
 }
-
-window["AddControl"] = AddControl;
 
 function openMenu() {
     let product = this.closest(".product");
@@ -51,14 +51,6 @@ function removeProduct() {
     });
 }
 
-document.body.addEventListener("click", event => {
-    if (event.target.classList.contains("product-menu")) {
-        return;
-    }
-
-    removePopups();
-});
-
 function removePopups() {
     if (isPopupOpen === true) {
         let popup = document.querySelectorAll(".product .popup");
@@ -68,3 +60,26 @@ function removePopups() {
         isPopupOpen = false;
     }
 }
+
+function addProduct() {
+
+}
+
+document.body.addEventListener("click", event => {
+    if (event.target.classList.contains("product-menu")) {
+        return;
+    }
+
+    removePopups();
+});
+
+function AddCreateProductButton() {
+    let productList = document.querySelector("#ProductList");
+    if (!productList) return;
+
+    productList.prepend(Div({
+        textContent: "+",
+        events: {onclick: addProduct}
+    }));
+}
+

@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"database/sql"
@@ -12,33 +12,25 @@ type Product struct {
 	Price float64 `json:"price"`
 }
 
-func prepareProduct() error {
+func prepareProduct() []string {
 	if query == nil {
 		query = make(map[string]*sql.Stmt)
 	}
 
+	errorList := make([]string, 0)
 	var e error
 
-	query["ProductSearch"], e = Link.Prepare(`
-SELECT id, "name", price
-FROM product
-WHERE "name" ILIKE '%' || $1 || '%'
-ORDER BY price`)
+	query["ProductSearch"], e = Link.Prepare(`SELECT id, "name", price FROM product WHERE "name" ILIKE '%' || $1 || '%' ORDER BY price`)
 	if e != nil {
-		fmt.Println(e)
-		return e
+		errorList = append(errorList, e.Error())
 	}
 
-	query["ProductDelete"], e = Link.Prepare(`
-DELETE
-FROM product
-WHERE id = $1`)
+	query["ProductDelete"], e = Link.Prepare(`DELETE FROM product WHERE id = $1`)
 	if e != nil {
-		fmt.Println(e)
-		return e
+		errorList = append(errorList, e.Error())
 	}
 
-	return nil
+	return errorList
 }
 
 func SearchProduct(name string) []Product {

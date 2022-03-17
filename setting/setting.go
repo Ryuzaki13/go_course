@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"awesomeProject2/utils"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -19,23 +20,7 @@ type Setting struct {
 var options Setting
 
 func Load(filename string) *Setting {
-	file, e := os.Open(filename)
-	if e != nil {
-		fmt.Println(e)
-		return nil
-	}
-	defer file.Close()
-	stat, e := file.Stat()
-	if e != nil {
-		fmt.Println(e)
-		return nil
-	}
-	bytes := make([]byte, stat.Size())
-	n, e := file.Read(bytes)
-	if e != nil || n != int(stat.Size()) {
-		fmt.Println(e)
-		return nil
-	}
+	bytes, e := utils.LoadFile(filename)
 	e = json.Unmarshal(bytes, &options)
 	if e != nil {
 		fmt.Println(e)
