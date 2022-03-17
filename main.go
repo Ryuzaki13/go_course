@@ -44,37 +44,6 @@ func run() {
 
 }
 
-type M struct {
-	ID       int32
-	Name     string
-	Link     string
-	Children []M
-}
-
-func index2(c *gin.Context) {
-
-	type requestData struct {
-		Date string `json:"Date"`
-	}
-
-	var data requestData
-
-	e := c.BindJSON(&data)
-	if e != nil {
-		fmt.Println(e)
-		c.JSON(400, nil)
-		return
-	}
-
-	fmt.Println(data)
-
-	c.JSON(200, gin.H{
-		"Users":   "HELLO",
-		"IsAdmin": true,
-		"Date":    "2022-02-18",
-	})
-}
-
 func upload(c *gin.Context) {
 
 	form, e := c.MultipartForm()
