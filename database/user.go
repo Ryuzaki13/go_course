@@ -18,6 +18,7 @@ type Session struct {
 	User   User
 	Date   string
 	Device string
+	Exists bool
 }
 
 var sessionMap map[string]Session

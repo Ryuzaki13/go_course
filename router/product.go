@@ -25,7 +25,7 @@ func getProducts(c *gin.Context) {
 func delProduct(c *gin.Context) {
 	session := getSession(c)
 	if session.User.Role != "admin" {
-		c.JSON(400, nil)
+		c.JSON(403, nil)
 		return
 	}
 
@@ -48,4 +48,49 @@ func delProduct(c *gin.Context) {
 	}
 
 	c.JSON(200, nil)
+}
+
+func updateCart(c *gin.Context) {
+	session := getSession(c)
+	if !session.Exists {
+		c.JSON(403, nil)
+		return
+	}
+
+	type input struct {
+		ID    int
+		Count int
+	}
+
+	i := input{}
+	e := c.BindJSON(&i)
+	if e != nil {
+		utils.Logger.Println(e)
+		c.JSON(400, nil)
+		return
+	}
+
+	e = database.UpdateCart(session.User.Login, i.ID, i.Count)
+	if e != nil {
+		c.JSON(400, nil)
+		return
+	}
+
+	c.JSON(200, nil)
+}
+
+func selectCart(c *gin.Context) {
+	session := getSession(c)
+	if !session.Exists {
+		c.JSON(403, nil)
+		return
+	}
+
+	data, e := database.SelectCart(session.User.Login)
+	if e != nil {
+		c.JSON(400, nil)
+		return
+	}
+
+	c.JSON(200, data)
 }

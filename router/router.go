@@ -40,6 +40,9 @@ func Initialized() *gin.Engine {
 	routerAPI.POST("/product", getProducts)
 	routerAPI.DELETE("/product", delProduct)
 
+	routerAPI.POST("/cart/update", updateCart)
+	routerAPI.GET("/cart", selectCart)
+
 	return router
 }
 
@@ -47,14 +50,17 @@ func getSession(c *gin.Context) *database.Session {
 	_session := sessions.Default(c)
 
 	sessionHash, ok := _session.Get("SessionSecretKey").(string)
-	if ok == true {
+	if ok {
 		session := database.GetSession(sessionHash)
-		if ok {
+		if session != nil {
+			session.Exists = true
 			return session
 		}
 	}
 
-	return nil
+	return &database.Session{
+		Exists: false,
+	}
 }
 
 func index(c *gin.Context) {

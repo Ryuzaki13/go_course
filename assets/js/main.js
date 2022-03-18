@@ -20,7 +20,11 @@ function Div(props) {
         return div;
     }
 
-    if ("events" in props) {
+    if ("textContent" in props) {
+        div.textContent = props.textContent;
+    }
+
+    if ("events" in props && typeof props.events === "object") {
         for (let key in props.events) {
             div[key] = props.events[key];
         }
@@ -103,9 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         Product.Build(response);
 
-        if (AddControl && typeof AddControl === "function") {
-            AddControl();
-        }
+        // if (AddControl && typeof AddControl === "function") {
+        //     AddControl();
+        // }
     });
 })
 
@@ -115,6 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let Product = (function () {
     let object = {};
+
+    let currentCount = 0;
 
     object.Build = function (products) {
         let productList = document.querySelector("#ProductList");
@@ -127,6 +133,21 @@ let Product = (function () {
         for (let product of products) {
             productList.append(object.Create(product));
         }
+
+        object.GetCart();
+    }
+
+    object.GetCart = function () {
+        Send("GET", "/api/cart", null, r => {
+            if (!r) return;
+
+            for (let cart of r) {
+                let product = document.querySelector(`.product[data-id="${cart.ID}"] .counter > div:nth-child(2)`);
+                if (product) {
+                    product.textContent = cart.Count;
+                }
+            }
+        })
     }
 
     object.Create = function (product) {
@@ -145,7 +166,68 @@ let Product = (function () {
                     className: "price",
                     textContent: product.price,
                 }),
+                Div({
+                    className: "counter",
+                    children: [
+                        Div({
+                            className: "button",
+                            textContent: "-",
+                            events: {
+                                onclick: object.Minus
+                            }
+                        }),
+                        Div({textContent: "0"}),
+                        Div({
+                            className: "button",
+                            textContent: "+",
+                            events: {
+                                onclick: object.Plus
+                            }
+                        }),
+                        Div({
+                            className: "button add",
+                            textContent: "Добавить",
+                            events: {
+                                onclick: object.Add
+                            }
+                        })
+                    ]
+                })
             ]
+        });
+    }
+
+    object.Minus = function (e) {
+        let element = e.currentTarget;
+        if (!element) return;
+
+        if (element.nextElementSibling) {
+            if (currentCount < 1) return;
+            currentCount--;
+            element.nextElementSibling.textContent = currentCount;
+        }
+    };
+    object.Plus = function (e) {
+        let element = e.currentTarget;
+        if (!element) return;
+
+        if (element.previousElementSibling) {
+            currentCount++;
+            element.previousElementSibling.textContent = currentCount;
+        }
+    };
+    object.Add = function (e) {
+        let element = e.currentTarget;
+        if (!element) return;
+
+        element = element.closest(".product");
+        if (!element) return;
+
+        let id = +element.dataset.id;
+
+        Send("POST", "/api/cart/update", {
+            ID: id,
+            Count: currentCount,
         });
     }
 
@@ -174,4 +256,5 @@ let User = (function () {
 
     return object;
 })();
+
 

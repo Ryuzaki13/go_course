@@ -12,6 +12,11 @@ type Product struct {
 	Price float64 `json:"price"`
 }
 
+type Cart struct {
+	ID    int
+	Count int
+}
+
 func prepareProduct() []string {
 	if query == nil {
 		query = make(map[string]*sql.Stmt)
@@ -26,6 +31,16 @@ func prepareProduct() []string {
 	}
 
 	query["ProductDelete"], e = Link.Prepare(`DELETE FROM product WHERE id = $1`)
+	if e != nil {
+		errorList = append(errorList, e.Error())
+	}
+
+	query["UpdateCart"], e = Link.Prepare(`SELECT * FROM "UpdateCart"($1, $2, $3)`)
+	if e != nil {
+		errorList = append(errorList, e.Error())
+	}
+
+	query["SelectCart"], e = Link.Prepare(`SELECT "Product", "Count" FROM "Cart" WHERE "User"=$1`)
 	if e != nil {
 		errorList = append(errorList, e.Error())
 	}
@@ -82,4 +97,55 @@ func DeleteProduct(id int) error {
 	}
 
 	return nil
+}
+
+func UpdateCart(user string, id, count int) error {
+	q, ok := query["UpdateCart"]
+	if !ok {
+		fmt.Println("ОШИБКА")
+		return errors.New("ошощывавыа ыва")
+	}
+
+	_, e := q.Exec(user, id, count)
+	if e != nil {
+		fmt.Println("ОШИБКА", e)
+		return e
+	}
+
+	return nil
+}
+
+func SelectCart(user string) ([]Cart, error) {
+	q, ok := query["SelectCart"]
+	if !ok {
+		fmt.Println("ОШИБКА")
+		return nil, errors.New("ошощывавыа ыва")
+	}
+
+	rows, e := q.Query(user)
+	if e != nil {
+		fmt.Println("ОШИБКА", e)
+		return nil, e
+	}
+
+	defer rows.Close()
+
+	cart := make([]Cart, 0)
+
+	var id, count int
+
+	for rows.Next() {
+		e = rows.Scan(&id, &count)
+		if e != nil {
+			fmt.Println("ОШИБКА", e)
+			return nil, e
+		}
+
+		cart = append(cart, Cart{
+			ID:    id,
+			Count: count,
+		})
+	}
+
+	return cart, nil
 }

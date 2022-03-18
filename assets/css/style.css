@@ -35,7 +35,7 @@ body {
 }
 
 .product .price {
-    font-size: 1.5em;
+    font-size: 1.2em;
     margin: 20px;
     font-weight: bold;
 }
@@ -69,4 +69,25 @@ body {
 }
 .product .popup > * {
     padding: 5px;
+}
+
+.counter {
+    display: grid;
+    grid-template-columns: 24px 48px 24px 1fr;
+    justify-items: center;
+    align-items: center;
+    margin: 0 10px;
+}
+.counter > .button {
+    text-align: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background-color: #e4e4e4;
+    font-size: 20px;
+}
+.counter > .button.add {
+    margin-left: 10px;
+    width: auto;
+    justify-self: stretch;
 }
