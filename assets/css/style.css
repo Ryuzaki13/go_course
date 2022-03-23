@@ -91,3 +91,41 @@ body {
     width: auto;
     justify-self: stretch;
 }
+
+.cart {
+    display: inline-block;
+    padding: 10px 5px;
+    font-size: 32px;
+    position: relative;
+}
+
+.cart .cart-counter {
+    position: absolute;
+    top: 0px;
+    right: -6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 14px;
+    color: white;
+    background-color: darkorange;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.cart .cart-counter:empty {
+    display: none;
+}
+.preview-cart {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    z-index: 2;
+    font-size: 14px;
+    font-family: sans-serif;
+    font-weight: normal;
+    padding: 10px;
+    box-shadow: 0 0 10px #999;
+    border-radius: 5px;
+}

@@ -141,12 +141,31 @@ let Product = (function () {
         Send("GET", "/api/cart", null, r => {
             if (!r) return;
 
+            let cartCompose = document.querySelector("#CartCompose");
+
+            let count = 0;
             for (let cart of r) {
+                count += cart.Count;
                 let product = document.querySelector(`.product[data-id="${cart.ID}"] .counter > div:nth-child(2)`);
                 if (product) {
                     product.textContent = cart.Count;
                 }
+                cartCompose.append(Div({
+                    dataset: {id: cart.ID},
+                    children: [
+                        Div({
+                            textContent: cart.Name
+                        }),
+                        Div({
+                            textContent: cart.Price
+                        }),
+                        Div({
+                            textContent: cart.Count
+                        }),
+                    ]
+                }));
             }
+            UpdateCartCount(count);
         })
     }
 
@@ -228,6 +247,8 @@ let Product = (function () {
         Send("POST", "/api/cart/update", {
             ID: id,
             Count: currentCount,
+        }, count => {
+            UpdateCartCount(count);
         });
     }
 
@@ -257,4 +278,14 @@ let User = (function () {
     return object;
 })();
 
+function UpdateCartCount(count) {
+    let cartCounter = document.querySelector(".cart-counter");
+    if (!cartCounter) return;
+
+    if (count > 0) {
+        cartCounter.textContent = count;
+    } else {
+        cartCounter.textContent = "";
+    }
+}
 

@@ -76,7 +76,13 @@ func updateCart(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, nil)
+	count, e := database.SelectCart(session.User.Login)
+	if e != nil {
+		c.JSON(400, nil)
+		return
+	}
+
+	c.JSON(200, count)
 }
 
 func selectCart(c *gin.Context) {

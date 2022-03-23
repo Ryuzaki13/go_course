@@ -28,6 +28,7 @@ func Initialized() *gin.Engine {
 	router.Static("assets", "assets")
 
 	router.GET("/", index)
+	router.GET("/cart", handlerCart)
 
 	routerUser := router.Group("/user")
 
@@ -76,4 +77,22 @@ func index(c *gin.Context) {
 	}
 
 	c.HTML(200, "index", h)
+}
+
+func handlerCart(c *gin.Context) {
+	session := getSession(c)
+
+	cart, _ := database.SelectCart(session.User.Login)
+
+	h := gin.H{
+		"Title": "Сайтик",
+		"Cart":  cart,
+		"Role":  session.User.Role,
+	}
+
+	if session.User.Role == "admin" {
+		h["JS"] = adminJS
+	}
+
+	c.HTML(200, "cart", h)
 }

@@ -15,6 +15,8 @@ type Product struct {
 type Cart struct {
 	ID    int
 	Count int
+	Name  string
+	Price float64
 }
 
 func prepareProduct() []string {
@@ -40,7 +42,13 @@ func prepareProduct() []string {
 		errorList = append(errorList, e.Error())
 	}
 
-	query["SelectCart"], e = Link.Prepare(`SELECT "Product", "Count" FROM "Cart" WHERE "User"=$1`)
+	query["SelectCart"], e = Link.Prepare(`SELECT p.id,
+       p.name,
+       p.price,
+       t1."Count"
+FROM "Cart" AS t1
+         INNER JOIN product p on t1."Product" = p.id
+WHERE "User" = $1`)
 	if e != nil {
 		errorList = append(errorList, e.Error())
 	}
@@ -133,9 +141,11 @@ func SelectCart(user string) ([]Cart, error) {
 	cart := make([]Cart, 0)
 
 	var id, count int
+	var name string
+	var price float64
 
 	for rows.Next() {
-		e = rows.Scan(&id, &count)
+		e = rows.Scan(&id, &name, &price, &count)
 		if e != nil {
 			fmt.Println("ОШИБКА", e)
 			return nil, e
@@ -144,6 +154,8 @@ func SelectCart(user string) ([]Cart, error) {
 		cart = append(cart, Cart{
 			ID:    id,
 			Count: count,
+			Name:  name,
+			Price: price,
 		})
 	}
 
